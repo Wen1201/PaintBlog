@@ -7,7 +7,11 @@ MongoClient.connect('mongodb://127.0.0.1:27017', {}, (err, client) => {
         process.exit(1);
     }
     db = client.db('pb');
-    insertBlogs();
+    db.collection('blogs').deleteMany({}, (err, result) =>{
+        if(!err){
+            insertBlogs();
+        }
+    });
 
 });
 
@@ -39,11 +43,22 @@ const insertBlogs = () => {
                 return;
             }
             console.log(`Success! added ${result.insertedCount} Blog posts`);
-            process.exit(0); // no errors
+            // process.exit(0); // no errors
+            printBlogs();
         }
     )
+    
+}
 
-
+const printBlogs = () => {
+    db.collection('blogs').find().toArray((err, blogs) => {
+        if(err){
+            console.log('error retrieving blogs', err);
+            return;
+        }
+        console.log('blogs', blogs);
+        process.exit(0);
+    })
 }
 
 

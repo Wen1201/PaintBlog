@@ -2,5 +2,25 @@
   "dependencies": {
     "mongodb": "^4.11.0",
     "mongoose": "^6.7.0"
-  }
+  },
+  "name": "paintblog",
+  "description": "",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "db:seed": "node models/seeds.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Wen1201/PaintBlog.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Wen1201/PaintBlog/issues"
+  },
+  "homepage": "https://github.com/Wen1201/PaintBlog#readme"
 }
