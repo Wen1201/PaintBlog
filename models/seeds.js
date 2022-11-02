@@ -7,8 +7,8 @@ MongoClient.connect('mongodb://127.0.0.1:27017', {}, (err, client) => {
         process.exit(1);
     }
     db = client.db('pb');
-    db.collection('blogs').deleteMany({}, (err, result) =>{
-        if(!err){
+    db.collection('blogs').deleteMany({}, (err, result) => {
+        if (!err) {
             insertBlogs();
         }
     });
@@ -47,17 +47,30 @@ const insertBlogs = () => {
             printBlogs();
         }
     )
-    
+
 }
 
 const printBlogs = () => {
     db.collection('blogs').find().toArray((err, blogs) => {
-        if(err){
+        if (err) {
             console.log('error retrieving blogs', err);
             return;
         }
         console.log('blogs', blogs);
         process.exit(0);
+    })
+}
+
+const promiseFindBlogs = () => {
+    return new Promise((resolve, reject) => {
+    })
+
+    db.collection('blogs').find().toArray((err, blogs) => {
+        if (err) {
+            console.log('Error retrieving blogs', err);
+            return;
+        }
+        console.log('Blogs', blogs);
     })
 }
 
