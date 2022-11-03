@@ -1,58 +1,23 @@
 
 const mongoose = require('mongoose');
 const Blog = require('./Blog');
-mongoose.connect('mongodb://127.0.0.1:27017');
+mongoose.connect('mongodb://127.0.0.1:27017/pb');
 
 const db = mongoose.connection;
 
-MongoClient.connect('mongodb://127.0.0.1:27017', {}, (err, client) => {
-    if (err) {
-        console.log('error connecting to mongoDB server', err);
-        process.exit(1);
-    }
-    db = client.db('pb');
-    db.collection('blogs').deleteMany({}, (err, result) => {
-        if (!err) {
-            insertBlogs();
-        }
-    });
+db.on('error', err => {
+    console.log('db connection err', err);
+    process.exit(1)
+})
 
-});
+db.once('open', async() =>{
+    console.log('success db connected', model loaded);
+    const blogs = await Blog.find()
+    console.log('blogs', blogs)
+    process.exit(0)
+})
 
-const insertBlogs = () => {
-
-    db.collection('blogs').insertMany([
-        {
-            title: 'My new blog post',
-            author: 'Mo',
-            content: 'Lorem functionality does not work',
-            img: 'https://www.fillmurray.com/200/200',
-        },
-        {
-            title: 'life after SEI55',
-            author: 'Dee',
-            content: 'Backend engineering jokes',
-            img: 'https://www.fillmurray.com/200/200',
-        },
-        {
-            title: 'Life in Hobart',
-            author: 'Wen',
-            content: 'Beautiful and boring',
-            img: 'https://www.fillmurray.com/200/200',
-        },
-    ],
-        (err, result) => {
-            if (err) {
-                console.log('Error inserting blog posts', err);
-                return;
-            }
-            console.log(`Success! added ${result.insertedCount} Blog posts`);
-            // process.exit(0); // no errors
-            printBlogs();
-        }
-    )
-
-}
+const insertBlogs = ()
 
 const promiseFindBlogs = () => {
     return new Promise((resolve, reject) => {
