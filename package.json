@@ -1,16 +1,18 @@
 {
   "dependencies": {
+    "express": "^4.18.2",
     "mongodb": "^4.11.0",
-    "mongoose": "^6.7.0"
+    "mongoose": "^6.7.0",
+    "nodemon": "^2.0.20"
   },
   "name": "paintblog",
   "description": "",
   "version": "1.0.0",
   "main": "index.js",
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "db:seed": "node models/seeds.js"
+    "db:seed": "node models/seeds.js",
+    "start": "nodemon server.js"
   },
   "repository": {
     "type": "git",
