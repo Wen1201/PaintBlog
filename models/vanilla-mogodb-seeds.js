@@ -1,9 +1,5 @@
-
-const mongoose = require('mongoose');
-const Blog = require('./Blog');
-mongoose.connect('mongodb://127.0.0.1:27017');
-
-const db = mongoose.connection;
+let db;
+const MongoClient = require('mongodb').MongoClient;
 
 MongoClient.connect('mongodb://127.0.0.1:27017', {}, (err, client) => {
     if (err) {
