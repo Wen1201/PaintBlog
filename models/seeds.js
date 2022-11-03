@@ -11,7 +11,7 @@ db.on('error', err => {
 })
 
 db.once('open', async() =>{
-    console.log('success db connected', model loaded);
+    console.log('Success! DB connected, model loaded');
     const blogs = await Blog.find()
     console.log('blogs', blogs)
     process.exit(0)
