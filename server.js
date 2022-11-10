@@ -34,3 +34,18 @@ app.get('/blogs', async (req, res) => {
   const blogs = await Blog.find();
   res.json(blogs);
 })
+
+app.get('/blogs/:id', async (req, res) => {
+
+  try{
+    const blog = await Blog.find({
+      _id: req.params.id
+    });
+    console.log('blog', blog);
+    res.json(blog)
+  } catch( err ){
+    console.error('Error, could not find blog', err);
+    res.sendStatus(422)
+  }
+  
+})
