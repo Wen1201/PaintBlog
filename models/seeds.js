@@ -22,18 +22,54 @@ db.once('open', async() => {
                 author: 'Mo',
                 content: 'Lorem functionality does not work',
                 img: 'https://www.fillmurray.com/200/200',
+                comment: [
+                    {
+                        text: 'This is the single most amazing picture of fillmurray I\'ve ever seen'
+                    },
+                    {
+                        text: 'This blog post is rubbish. What is this?'
+                    },
+                    {
+                        text: "Surely you can do better"
+                    }
+                    
+                ]
             },
             {
                 title: 'life after SEI55',
                 author: 'Dee',
                 content: 'Backend engineering jokes',
                 img: 'https://www.fillmurray.com/200/200',
+                comment: [
+                    {
+                        text: 'This is the single most amazing picture of fillmurray I\'ve ever seen'
+                    },
+                    {
+                        text: 'This blog post is rubbish. What is this?'
+                    },
+                    {
+                        text: "Surely you can do better"
+                    }
+                    
+                ]
             },
             {
                 title: 'Life in Hobart',
                 author: 'Wen',
                 content: 'Beautiful and boring',
                 img: 'https://www.fillmurray.com/200/200',
+                comment: [
+                    {
+                        text: 'This is the single most amazing picture of fillmurray I\'ve ever seen'
+                    },
+                    {
+                        text: 'This blog post is rubbish. What is this?'
+                    },
+                    {
+                        text: "Surely you can do better"
+                    }
+                    
+                ]
             },
         ],
 
