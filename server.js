@@ -36,9 +36,9 @@ app.get('/blogs', async (req, res) => {
 })
 
 app.get('/blogs/:id', async (req, res) => {
-
+// console.log('made it!', req);
   try{
-    const blog = await Blog.find({
+    const blog = await Blog.findOne({
       _id: req.params.id
     });
     console.log('blog', blog);
