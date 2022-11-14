@@ -64,6 +64,7 @@ app.post('/blogs', async (req, res) => {
 
   }
   const result = await Blog.create(newBlog);
+  res.json(newBlog);
   // try {
   // } catch (error) {
 
