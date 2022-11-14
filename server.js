@@ -7,7 +7,7 @@ const PORT = 3000
 const cors = require('cors')
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 
 
 app.listen(PORT, () => {
@@ -27,25 +27,36 @@ db.on('error', err => {
 
 app.get('/', (req, res) => {
   console.log('Root route was requested')
-  res.json({hello: 'there'})
+  res.json({ hello: 'there' })
 })
 
+// index route for blogs
 app.get('/blogs', async (req, res) => {
   const blogs = await Blog.find();
   res.json(blogs);
 })
 
+// show route for blogs/:id
 app.get('/blogs/:id', async (req, res) => {
-// console.log('made it!', req);
-  try{
+  // console.log('made it!', req);
+  try {
     const blog = await Blog.findOne({
       _id: req.params.id
     });
     console.log('blog', blog);
     res.json(blog)
-  } catch( err ){
+  } catch (err) {
     console.error('Error, could not find blog', err);
     res.sendStatus(422)
   }
-  
+
+})
+
+// create a new blot
+app.post('/blogs', async (req, res) => {
+  console.log('create /blogs post', req.body);
+  // try {
+  // } catch (error) {
+
+  // }
 })
