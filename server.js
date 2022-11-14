@@ -63,7 +63,7 @@ app.post('/blogs', async (req, res) => {
     img: req.body.img,
 
   }
-  const result = await Blog.create();
+  const result = await Blog.create(newBlog);
   // try {
   // } catch (error) {
 
