@@ -8,8 +8,6 @@ const BlogSchema = new mongoose.Schema({
     user_id: Number,
   },
   img: String,
-  created_at: Date,
-  updated_at: Date,
   comment: [{ 
     text: String,
     author: {

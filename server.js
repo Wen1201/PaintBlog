@@ -55,6 +55,15 @@ app.get('/blogs/:id', async (req, res) => {
 // create a new blot
 app.post('/blogs', async (req, res) => {
   console.log('create /blogs post', req.body);
+  const newBlog = {
+
+    title: req.body.title,
+    author: req.body.author,
+    content: req.body.content,
+    img: req.body.img,
+
+  }
+  const result = await Blog.create();
   // try {
   // } catch (error) {
 
