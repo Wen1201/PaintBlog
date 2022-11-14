@@ -39,7 +39,7 @@ db.once('open', async() => {
                 title: 'life after SEI55',
                 author: 'Dee',
                 content: 'Backend engineering jokes',
-                img: 'https://www.fillmurray.com/200/200',
+                img: 'https://www.fillmurray.com/200/300',
                 comment: [
                     {
                         text: 'This is the single most amazing picture of fillmurray I\'ve ever seen'
@@ -57,7 +57,7 @@ db.once('open', async() => {
                 title: 'Life in Hobart',
                 author: 'Wen',
                 content: 'Beautiful and boring',
-                img: 'https://www.fillmurray.com/200/200',
+                img: 'https://www.fillmurray.com/300/200',
                 comment: [
                     {
                         text: 'This is the single most amazing picture of fillmurray I\'ve ever seen'
