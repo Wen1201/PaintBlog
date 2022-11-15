@@ -1,7 +1,9 @@
 
 const mongoose = require('mongoose');
+const User = require('./User');
 const Blog = require('./Blog');
 mongoose.connect('mongodb://127.0.0.1:27017/pb');
+const bcrypt = require('bcrypt');
 
 const db = mongoose.connection;
 
@@ -75,8 +77,36 @@ db.once('open', async() => {
 
     )
     console.log('blogs', blogs)
-    process.exit(0);
 
+    
+    await User.deleteMany();
+    const users = await User.create(
+        [
+            {
+                name: 'Dee',
+                email: 'dee@ga.com',
+                passwordDigest: bcrypt.hashSync('chicken', 10),
+            },
+            {
+                name: 'Mo',
+                email: 'mo@ga.com',
+                passwordDigest: bcrypt.hashSync('chicken', 10),
+            },
+            {
+                name: 'Wen',
+                email: 'wen@ga.com',
+                passwordDigest: bcrypt.hashSync('chicken', 10),
+            },
+            
+        ]
+        
+    
+        
+    )
+    
+    console.log('users', users)  
+    process.exit(0)
+        
 })
 
 
