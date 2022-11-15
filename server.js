@@ -1,5 +1,10 @@
 const express = require('express')
-
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+const jwtAuthenticate = require('express-jwt')
+const SERVER_SECRET_KEY = 'TODO:secretchickenkey'
+const Blog = require('./models/Blog')
+const User = require('./models/User')
 const app = express()
 
 const PORT = 3000
@@ -15,7 +20,6 @@ app.listen(PORT, () => {
 })
 
 const mongoose = require('mongoose')
-const Blog = require('./models/Blog')
 
 mongoose.connect('mongodb://127.0.0.1/pb')
 
@@ -65,8 +69,21 @@ app.post('/blogs', async (req, res) => {
   }
   const result = await Blog.create(newBlog);
   res.json(newBlog);
-  // try {
-  // } catch (error) {
+})
 
-  // }
+app.post('/login', async (req, res) => {
+  console.log('login:', req.body)
+  const {email, password} = req.body
+  try {
+    const user = await User.findOne({email})
+    
+    if (user && bcrypt.compareSync(password, user.passwordDigest)){
+      res.json({success: true})
+    } else {
+      res.status(401).json({success: false})
+    }
+  }catch(err){
+    console.log('error verfying credentials:', err)
+    res.sendStatus(500)
+  }
 })
