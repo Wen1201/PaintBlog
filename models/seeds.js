@@ -78,6 +78,7 @@ db.once('open', async() => {
     )
     console.log('blogs', blogs)
 
+
     
     await User.deleteMany();
     const users = await User.create(
@@ -108,6 +109,8 @@ db.once('open', async() => {
     process.exit(0)
         
 })
+
+
 
 
 // const insertBlogs = ()

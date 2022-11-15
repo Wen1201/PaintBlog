@@ -71,6 +71,8 @@ app.post('/blogs', async (req, res) => {
   res.json(newBlog);
 })
 
+// To fake a post in iterm and test if a post works, use the Curl command below, use this to test if success/fail conditions are working
+// curl -XPOST -d '{ "email":"one@one.com", "password":"chicken" }' http://localhost:3000/login -H 'content-type: application/json'
 app.post('/login', async (req, res) => {
   console.log('login:', req.body)
   const {email, password} = req.body
@@ -78,7 +80,20 @@ app.post('/login', async (req, res) => {
     const user = await User.findOne({email})
     
     if (user && bcrypt.compareSync(password, user.passwordDigest)){
-      res.json({success: true})
+      // res.json({success: true})
+      const token = jwt.sign({
+          _id: user._id
+      },
+        SERVER_SECRET_KEY, 
+        {expiresIn: '72h'}
+      )
+      const filterUser = {
+        name: user.name,
+        email: user.email,
+      }
+
+      res.json({token, filterUser})
+
     } else {
       res.status(401).json({success: false})
     }
