@@ -2,18 +2,17 @@ const express = require('express')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const jwtAuthenticate = require('express-jwt')
-const SERVER_SECRET_KEY = 'TODOsecretchickenkey'
 const Blog = require('./models/Blog')
 const User = require('./models/User')
 const app = express()
-
-const PORT = 3000
+const PORT=process.env.PORT || 3000
 
 const cors = require('cors')
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+require('dotenv').config()
+console.log(process.env.SERVER_SECRET_KEY)
 
 app.listen(PORT, () => {
   console.log(`Server listening at http://localhost:${PORT}`)
@@ -31,7 +30,7 @@ db.on('error', err => {
 
 const checkAuth = () => {
   return jwtAuthenticate.expressjwt({
-    secret: SERVER_SECRET_KEY,
+    secret: process.env.SERVER_SECRET_KEY,
     algorithms: ['HS256'],
     requestProperty: 'auth'
   })
