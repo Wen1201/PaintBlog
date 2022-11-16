@@ -2,7 +2,7 @@ const express = require('express')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const jwtAuthenticate = require('express-jwt')
-const SERVER_SECRET_KEY = 'TODO:secretchickenkey'
+const SERVER_SECRET_KEY = 'TODOsecretchickenkey'
 const Blog = require('./models/Blog')
 const User = require('./models/User')
 const app = express()
@@ -29,6 +29,14 @@ db.on('error', err => {
   process.exit(1)
 })
 
+const checkAuth = () => {
+  return jwtAuthenticate.expressjwt({
+    secret: SERVER_SECRET_KEY,
+    algorithms: ['HS256'],
+    requestProperty: 'auth'
+  })
+}
+
 app.get('/', (req, res) => {
   console.log('Root route was requested')
   res.json({ hello: 'there' })
@@ -53,19 +61,19 @@ app.get('/blogs/:id', async (req, res) => {
     console.error('Error, could not find blog', err);
     res.sendStatus(422)
   }
-
+  
 })
 
 // create a new blot
 app.post('/blogs', async (req, res) => {
   console.log('create /blogs post', req.body);
   const newBlog = {
-
+    
     title: req.body.title,
     author: req.body.author,
     content: req.body.content,
     img: req.body.img,
-
+    
   }
   const result = await Blog.create(newBlog);
   res.json(newBlog);
@@ -101,4 +109,28 @@ app.post('/login', async (req, res) => {
     console.log('error verfying credentials:', err)
     res.sendStatus(500)
   }
+})
+
+// **** routes below this line only work for authenticated users ****
+
+app.use(checkAuth());
+app.use(async (req,res,next) => {
+  try {
+    const user = await User.findOne({_id: req.auth._id})
+    if(user === null){
+      res.sendStatus( 401 );
+    } else {
+      req.current_user = user;
+    }
+  } catch (error) {
+    console.log('Error querying user in authentication', error)
+    res.sendStatus( 500 )
+  }
+});
+
+// All routes below now have req.current_user defined
+
+app.get('/current_user', (req,res) => {
+  console.log('route /current_user reached');
+  res.json(req.current_user)
 })
