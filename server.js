@@ -91,7 +91,7 @@ app.post('/login', async (req, res) => {
       const token = jwt.sign({
           _id: user._id
       },
-        SERVER_SECRET_KEY, 
+      process.env.SERVER_SECRET_KEY, 
         {expiresIn: '72h'}
       )
       const filterUser = {
