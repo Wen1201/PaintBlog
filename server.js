@@ -116,10 +116,13 @@ app.use(checkAuth());
 app.use(async (req,res,next) => {
   try {
     const user = await User.findOne({_id: req.auth._id})
+    // TODO: add the .populate method to include any associations of the User data (e.g. blogs, comments) 
     if(user === null){
       res.sendStatus( 401 );
     } else {
       req.current_user = user;
+      console.log(`req.current_user = `, req.current_user)
+      next();
     }
   } catch (error) {
     console.log('Error querying user in authentication', error)
@@ -128,7 +131,6 @@ app.use(async (req,res,next) => {
 });
 
 // All routes below now have req.current_user defined
-
 app.get('/current_user', (req,res) => {
   console.log('route /current_user reached');
   res.json(req.current_user)
