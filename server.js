@@ -5,7 +5,7 @@ const jwtAuthenticate = require('express-jwt')
 const Blog = require('./models/Blog')
 const User = require('./models/User')
 const app = express()
-const PORT=process.env.PORT || 3000
+const PORT = process.env.PORT || 3000
 
 const cors = require('cors')
 app.use(cors());
@@ -60,19 +60,19 @@ app.get('/blogs/:id', async (req, res) => {
     console.error('Error, could not find blog', err);
     res.sendStatus(422)
   }
-  
+
 })
 
 // create a new blot
 app.post('/blogs', async (req, res) => {
   console.log('create /blogs post', req.body);
   const newBlog = {
-    
+
     title: req.body.title,
     author: req.body.author,
     content: req.body.content,
     img: req.body.img,
-    
+
   }
   const result = await Blog.create(newBlog);
   res.json(newBlog);
@@ -82,43 +82,73 @@ app.post('/blogs', async (req, res) => {
 // curl -XPOST -d '{ "email":"one@one.com", "password":"chicken" }' http://localhost:3000/login -H 'content-type: application/json'
 app.post('/login', async (req, res) => {
   console.log('login:', req.body)
-  const {email, password} = req.body
+  const { email, password } = req.body
   try {
-    const user = await User.findOne({email})
-    
-    if (user && bcrypt.compareSync(password, user.passwordDigest)){
+    const user = await User.findOne({ email })
+
+    if (user && bcrypt.compareSync(password, user.passwordDigest)) {
       // res.json({success: true})
       const token = jwt.sign({
-          _id: user._id
+        _id: user._id
       },
-      process.env.SERVER_SECRET_KEY, 
-        {expiresIn: '72h'}
+        process.env.SERVER_SECRET_KEY,
+        { expiresIn: '72h' }
       )
       const filterUser = {
         name: user.name,
         email: user.email,
       }
 
-      res.json({token, filterUser})
+      res.json({ token, filterUser })
 
     } else {
-      res.status(401).json({success: false})
+      res.status(401).json({ success: false })
     }
-  }catch(err){
+  } catch (err) {
     console.log('error verfying credentials:', err)
     res.sendStatus(500)
   }
 })
 
+// signup route
+app.post('/signup', async (req, res) => {
+
+  const newUser = new User({
+    name: req.body.name,
+    email: req.body.email,
+    passwordDigest: bcrypt.hashSync(req.body.password, 10)
+  })
+
+  try {
+    const savedUser = await newUser.save();
+    console.log('Saved user:', savedUser);
+    const token = jwt.sign(
+      {
+        _id: savedUser._id
+      },
+      process.env.SERVER_SECRET_KEY,
+      {
+        expiresIn: '72h'
+      }
+    )
+    console.log('token', token);
+    res.json({ token, savedUser })
+  } catch (error) {
+    console.log('Error verifying login', error);
+    res.sendStatus(500);
+  }
+
+})
+
 // **** routes below this line only work for authenticated users ****
 
 app.use(checkAuth());
-app.use(async (req,res,next) => {
+app.use(async (req, res, next) => {
   try {
-    const user = await User.findOne({_id: req.auth._id})
+    const user = await User.findOne({ _id: req.auth._id })
     // TODO: add the .populate method to include any associations of the User data (e.g. blogs, comments) 
-    if(user === null){
-      res.sendStatus( 401 );
+    if (user === null) {
+      res.sendStatus(401);
     } else {
       req.current_user = user;
       console.log(`req.current_user = `, req.current_user)
@@ -126,12 +156,12 @@ app.use(async (req,res,next) => {
     }
   } catch (error) {
     console.log('Error querying user in authentication', error)
-    res.sendStatus( 500 )
+    res.sendStatus(500)
   }
 });
 
 // All routes below now have req.current_user defined
-app.get('/current_user', (req,res) => {
+app.get('/current_user', (req, res) => {
   console.log('route /current_user reached');
   res.json(req.current_user)
 })
