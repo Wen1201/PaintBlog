@@ -43,7 +43,7 @@ app.get('/', (req, res) => {
 
 // index route for blogs
 app.get('/blogs', async (req, res) => {
-  const blogs = await Blog.find();
+  const blogs = await Blog.find().populate(['author']);
   res.json(blogs);
 })
 

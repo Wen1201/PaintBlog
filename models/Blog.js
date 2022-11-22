@@ -5,7 +5,8 @@ const BlogSchema = new mongoose.Schema({
   title: {type: String, required: true},
   content: String,
   author: {
-    user_id: Number,
+    ref: 'User',
+    type: mongoose.Schema.Types.ObjectId
   },
   img: String,
   comment: [{ 

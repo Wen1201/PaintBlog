@@ -15,71 +15,6 @@ db.on('error', err => {
 db.once('open', async() => {
 
     console.log('Success! DB connected, model loaded');
-    await Blog.deleteMany();
-    const blogs = await Blog.create(
-
-        [
-            {
-                title: 'My new blog post',
-                author: 'Mo',
-                content: 'Lorem functionality does not work',
-                img: 'https://www.fillmurray.com/200/200',
-                comment: [
-                    {
-                        text: 'This is the single most amazing picture of fillmurray I\'ve ever seen'
-                    },
-                    {
-                        text: 'This blog post is rubbish. What is this?'
-                    },
-                    {
-                        text: "Surely you can do better"
-                    }
-                    
-                ]
-            },
-            {
-                title: 'life after SEI55',
-                author: 'Dee',
-                content: 'Backend engineering jokes',
-                img: 'https://www.fillmurray.com/200/300',
-                comment: [
-                    {
-                        text: 'This is the single most amazing picture of fillmurray I\'ve ever seen'
-                    },
-                    {
-                        text: 'This blog post is rubbish. What is this?'
-                    },
-                    {
-                        text: "Surely you can do better"
-                    }
-                    
-                ]
-            },
-            {
-                title: 'Life in Hobart',
-                author: 'Wen',
-                content: 'Beautiful and boring',
-                img: 'https://www.fillmurray.com/300/200',
-                comment: [
-                    {
-                        text: 'This is the single most amazing picture of fillmurray I\'ve ever seen'
-                    },
-                    {
-                        text: 'This blog post is rubbish. What is this?'
-                    },
-                    {
-                        text: "Surely you can do better"
-                    }
-                    
-                ]
-            },
-        ],
-
-    )
-    console.log('blogs', blogs)
-
-
-    
     await User.deleteMany();
     const users = await User.create(
         [
@@ -105,7 +40,74 @@ db.once('open', async() => {
         
     )
     
-    console.log('users', users)  
+    console.log('users', users);
+
+    await Blog.deleteMany();
+    const blogs = await Blog.create(
+
+        [
+            {
+                title: 'My new blog post',
+                author: users[1],
+                content: 'Lorem functionality does not work',
+                img: 'https://www.fillmurray.com/200/200',
+                comment: [
+                    {
+                        text: 'This is the single most amazing picture of fillmurray I\'ve ever seen'
+                    },
+                    {
+                        text: 'This blog post is rubbish. What is this?'
+                    },
+                    {
+                        text: "Surely you can do better"
+                    }
+                    
+                ]
+            },
+            {
+                title: 'life after SEI55',
+                author: users[0],
+                content: 'Backend engineering jokes',
+                img: 'https://www.fillmurray.com/200/300',
+                comment: [
+                    {
+                        text: 'This is the single most amazing picture of fillmurray I\'ve ever seen'
+                    },
+                    {
+                        text: 'This blog post is rubbish. What is this?'
+                    },
+                    {
+                        text: "Surely you can do better"
+                    }
+                    
+                ]
+            },
+            {
+                title: 'Life in Hobart',
+                author: users[2],
+                content: 'Beautiful and boring',
+                img: 'https://www.fillmurray.com/300/200',
+                comment: [
+                    {
+                        text: 'This is the single most amazing picture of fillmurray I\'ve ever seen'
+                    },
+                    {
+                        text: 'This blog post is rubbish. What is this?'
+                    },
+                    {
+                        text: "Surely you can do better"
+                    }
+                    
+                ]
+            },
+        ],
+
+    )
+    console.log('blogs', blogs)
+
+
+    
+   
     process.exit(0)
         
 })
