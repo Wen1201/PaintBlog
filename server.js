@@ -43,7 +43,7 @@ app.get('/', (req, res) => {
 
 // index route for blogs
 app.get('/blogs', async (req, res) => {
-  const blogs = await Blog.find().populate(['author']);
+  const blogs = await Blog.find().populate('author', 'name');
   res.json(blogs);
 })
 
@@ -53,7 +53,8 @@ app.get('/blogs/:id', async (req, res) => {
   try {
     const blog = await Blog.findOne({
       _id: req.params.id
-    });
+    })
+    .populate('author', 'name');
     console.log('blog', blog);
     res.json(blog)
   } catch (err) {
