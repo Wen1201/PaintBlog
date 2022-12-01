@@ -50,7 +50,7 @@ db.once('open', async() => {
                 title: 'My new blog post',
                 author: users[1],
                 content: 'Lorem functionality does not work',
-                img: 'https://www.fillmurray.com/200/200',
+                img: 'https://placekitten.com/200/200',
                 comment: [
                     {
                         text: 'This is the single most amazing picture of fillmurray I\'ve ever seen'
@@ -68,7 +68,7 @@ db.once('open', async() => {
                 title: 'life after SEI55',
                 author: users[0],
                 content: 'Backend engineering jokes',
-                img: 'https://www.fillmurray.com/200/300',
+                img: 'https://placekitten.com/200/300',
                 comment: [
                     {
                         text: 'This is the single most amazing picture of fillmurray I\'ve ever seen'
@@ -86,7 +86,7 @@ db.once('open', async() => {
                 title: 'Life in Hobart',
                 author: users[2],
                 content: 'Beautiful and boring',
-                img: 'https://www.fillmurray.com/300/200',
+                img: 'https://placekitten.com/300/200',
                 comment: [
                     {
                         text: 'This is the single most amazing picture of fillmurray I\'ve ever seen'
