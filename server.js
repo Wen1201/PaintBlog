@@ -28,18 +28,11 @@ db.on('error', err => {
   process.exit(1)
 })
 
-const checkAuth = () => {
-  return jwtAuthenticate.expressjwt({
-    secret: process.env.SERVER_SECRET_KEY,
-    algorithms: ['HS256'],
-    requestProperty: 'auth'
-  })
-}
-
 app.get('/', (req, res) => {
   console.log('Root route was requested')
   res.json({ hello: 'there' })
 })
+
 
 // index route for blogs
 app.get('/blogs', async (req, res) => {
@@ -61,19 +54,19 @@ app.get('/blogs/:id', async (req, res) => {
     console.error('Error, could not find blog', err);
     res.sendStatus(422)
   }
-
+  
 })
 
 // create a new blot
 app.post('/blogs', async (req, res) => {
   console.log('create /blogs post', req.body);
   const newBlog = {
-
+    
     title: req.body.title,
     author: req.body.author,
     content: req.body.content,
     img: req.body.img,
-
+    
   }
   const result = await Blog.create(newBlog);
   res.json(newBlog);
@@ -86,22 +79,22 @@ app.post('/login', async (req, res) => {
   const { email, password } = req.body
   try {
     const user = await User.findOne({ email })
-
+    
     if (user && bcrypt.compareSync(password, user.passwordDigest)) {
       // res.json({success: true})
       const token = jwt.sign({
         _id: user._id
       },
-        process.env.SERVER_SECRET_KEY,
-        { expiresIn: '72h' }
+      process.env.SERVER_SECRET_KEY,
+      { expiresIn: '72h' }
       )
       const filterUser = {
         name: user.name,
         email: user.email,
       }
-
+      
       res.json({ token, filterUser })
-
+      
     } else {
       res.status(401).json({ success: false })
     }
@@ -113,13 +106,13 @@ app.post('/login', async (req, res) => {
 
 // signup route
 app.post('/signup', async (req, res) => {
-
+  
   const newUser = new User({
     name: req.body.name,
     email: req.body.email,
     passwordDigest: bcrypt.hashSync(req.body.password, 10)
   })
-
+  
   try {
     const savedUser = await newUser.save();
     console.log('Saved user:', savedUser);
@@ -131,24 +124,32 @@ app.post('/signup', async (req, res) => {
       {
         expiresIn: '72h'
       }
-    )
-    console.log('token', token);
-    res.json({ token, savedUser })
-  } catch (error) {
-    console.log('Error verifying login', error);
-    res.sendStatus(500);
+      )
+      console.log('token', token);
+      res.json({ token, savedUser })
+    } catch (error) {
+      console.log('Error verifying login', error);
+      res.sendStatus(500);
+    }
+    
+  })
+  
+  // **** routes below this line only work for authenticated users ****
+  
+  const checkAuth = () => {
+    return jwtAuthenticate.expressjwt({
+      secret: process.env.SERVER_SECRET_KEY,
+      algorithms: ['HS256'],
+      requestProperty: 'auth'
+    })
   }
 
-})
-
-// **** routes below this line only work for authenticated users ****
-
-app.use(checkAuth());
-app.use(async (req, res, next) => {
-  try {
-    const user = await User.findOne({ _id: req.auth._id })
-    // TODO: add the .populate method to include any associations of the User data (e.g. blogs, comments) 
-    if (user === null) {
+  app.use(checkAuth());
+  app.use(async (req, res, next) => {
+    try {
+      const user = await User.findOne({ _id: req.auth._id })
+      // TODO: add the .populate method to include any associations of the User data (e.g. blogs, comments) 
+      if (user === null) {
       res.sendStatus(401);
     } else {
       req.current_user = user;

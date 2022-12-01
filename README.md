@@ -12,6 +12,7 @@ This project built entirely through mob programming by the graduated of Software
 ## Links 
 
 ## How to checkout and Run locally
+create a file called .env in the root
 `$git clone this repo`
 `$cd directory`
 `$npm i`
