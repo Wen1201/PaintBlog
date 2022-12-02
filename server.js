@@ -145,6 +145,7 @@ app.post('/signup', async (req, res) => {
   }
 
   app.use(checkAuth());
+
   app.use(async (req, res, next) => {
     try {
       const user = await User.findOne({ _id: req.auth._id })
@@ -167,3 +168,30 @@ app.get('/current_user', (req, res) => {
   console.log('route /current_user reached');
   res.json(req.current_user)
 })
+
+// Adding comments to an existing blogPost
+app.post('/blogs/:id/comment', async(req, res) => {
+  console.log('comment', req.body);
+
+  const newComment = {
+    text: req.body.comment
+  }
+
+  console.log(newComment);
+  try{
+    const result = await Blog.updateOne(
+      {_id: req.params.id},
+      {
+        $push: {
+          comment: newComment
+        }
+      }
+    )
+    console.log('result of one update', result)
+    res.json('ok')
+  }catch(err){
+    console.error('error updating comments', err)
+    res.sendStatus(422)
+  }
+
+}) // Update Comment
