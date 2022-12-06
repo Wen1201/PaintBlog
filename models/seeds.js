@@ -53,13 +53,16 @@ db.once('open', async() => {
                 img: 'https://placekitten.com/200/200',
                 comment: [
                     {
-                        text: 'This is the single most amazing picture of fillmurray I\'ve ever seen'
+                        text: 'This is the single most amazing picture of fillmurray I\'ve ever seen',
+                        author: users[0]
                     },
                     {
-                        text: 'This blog post is rubbish. What is this?'
+                        text: 'This blog post is rubbish. What is this?',
+                        author: users[1]
                     },
                     {
-                        text: "Surely you can do better"
+                        text: "Surely you can do better",
+                        author: users[2]
                     }
                     
                 ]
@@ -71,13 +74,16 @@ db.once('open', async() => {
                 img: 'https://placekitten.com/200/300',
                 comment: [
                     {
-                        text: 'This is the single most amazing picture of fillmurray I\'ve ever seen'
+                        text: 'This is the single most amazing picture of fillmurray I\'ve ever seen',
+                        author: users[0]
                     },
                     {
-                        text: 'This blog post is rubbish. What is this?'
+                        text: 'This blog post is rubbish. What is this?',
+                        author: users[1]
                     },
                     {
-                        text: "Surely you can do better"
+                        text: "Surely you can do better",
+                        author: users[2]
                     }
                     
                 ]
@@ -89,13 +95,16 @@ db.once('open', async() => {
                 img: 'https://placekitten.com/300/200',
                 comment: [
                     {
-                        text: 'This is the single most amazing picture of fillmurray I\'ve ever seen'
+                        text: 'This is the single most amazing picture of fillmurray I\'ve ever seen',
+                        author: users[0]
                     },
                     {
-                        text: 'This blog post is rubbish. What is this?'
+                        text: 'This blog post is rubbish. What is this?',
+                        author: users[1]
                     },
                     {
-                        text: "Surely you can do better"
+                        text: "Surely you can do better",
+                        author: users[2]
                     }
                     
                 ]

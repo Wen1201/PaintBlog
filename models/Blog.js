@@ -12,12 +12,14 @@ const BlogSchema = new mongoose.Schema({
   comment: [{ 
     text: String,
     author: {
-      user_id: Number,
+      ref: 'User',
+      type: mongoose.Schema.Types.ObjectId
     },
   }],
   like: [
     {
-      user_id: Number,
+      ref: 'User',
+      type: mongoose.Schema.Types.ObjectId
     }
   ]
 
