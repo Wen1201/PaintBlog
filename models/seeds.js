@@ -65,7 +65,8 @@ db.once('open', async() => {
                         author: users[2]
                     }
                     
-                ]
+                ],
+                like: [ users[0], users[1]]
             },
             {
                 title: 'life after SEI55',
@@ -86,7 +87,9 @@ db.once('open', async() => {
                         author: users[2]
                     }
                     
-                ]
+                ],
+                like: [users[1], users[2]]
+
             },
             {
                 title: 'Life in Hobart',
@@ -107,7 +110,9 @@ db.once('open', async() => {
                         author: users[2]
                     }
                     
-                ]
+                ],
+                like: [users[0], users[1], users[2]]
+
             },
         ],
 

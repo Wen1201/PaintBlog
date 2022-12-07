@@ -49,6 +49,7 @@ app.get('/blogs/:id', async (req, res) => {
     })
     .populate('author', 'name')
     .populate('comment.author', 'name')
+    .populate('like')
     console.log('blog', blog);
     res.json(blog)
   } catch (err) {
@@ -197,3 +198,29 @@ app.post('/blogs/:id/comment', async(req, res) => {
   }
 
 }) // Update Comment
+
+// Adding a like to a BlogPost
+// Current user ID is being returned and also Liked User ID is being return
+// TODO: Make comparision
+app.post('/blogs/:id/like', async(req, res) => {
+  console.log('like', req.body)
+  
+  try{
+    const current_blog = await Blog.findOne(
+      {_id: req.params.id}
+
+      )
+    console.log(current_blog)
+    // TODO: Write a if block comparing current_user ID with Like array
+  }
+  catch (err){
+    console.error('error finding BlogPost Like', err)
+    res.sendStatus(422)
+  }
+  // When you hit the like end point
+  // Code should check/search if current blog post already contains that user in the like array
+
+  // If user_id is present, remove from the array
+  // If user_id is not present, add user to array
+
+})
