@@ -47,7 +47,8 @@ app.get('/blogs/:id', async (req, res) => {
     const blog = await Blog.findOne({
       _id: req.params.id
     })
-    .populate('author', 'name');
+    .populate('author', 'name')
+    .populate('comment.author', 'name')
     console.log('blog', blog);
     res.json(blog)
   } catch (err) {
