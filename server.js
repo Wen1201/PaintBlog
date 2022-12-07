@@ -175,7 +175,8 @@ app.post('/blogs/:id/comment', async(req, res) => {
   console.log('comment', req.body);
 
   const newComment = {
-    text: req.body.comment
+    text: req.body.comment,
+    author: req.current_user
   }
 
   console.log(newComment);
