@@ -203,20 +203,30 @@ app.post('/blogs/:id/comment', async(req, res) => {
 // Current user ID is being returned and also Liked User ID is being return
 app.post('/blogs/:id/like', async(req, res) => {
   
+  // FindOne used to identify the blogPost being liked
   try{
     const current_blog = await Blog.findOne(
       {_id: req.params.id}
 
       )
+    
+      // Saving current user id and Like Array into variables
     const userId = req.current_user._id
     const likeArray = current_blog.like
+
+    // New empty array created where we sort a match between user Id and within the arry
     const existsInLikeArray = [];
+
+    // for loop to check if user id within the like array
     for (let i = 0; i < likeArray.length; i++){
       if(userId.toString() === likeArray[i].toString()){
         console.log(`Success, UserId:${userId.toString()} is the same as LikeArray[${i}]:${likeArray[i].toString()}`)
     existsInLikeArray.push(userId)
   }
 }
+
+// if statment checks length of of array, if 0 then push user id onto the like array creating a like function
+
   if(existsInLikeArray.length === 0){
     console.log('MongoDB - trying to add userId to likes Array')
     result = await Blog.updateOne(
@@ -227,6 +237,8 @@ app.post('/blogs/:id/like', async(req, res) => {
         }
       }
     )
+  
+    // else we pull / remove the user id from the like array creating unlike function
   } else {
     console.log('MongoDB - trying to remove userId from likes Array')
     result = await Blog.updateOne(
