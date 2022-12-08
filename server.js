@@ -201,17 +201,50 @@ app.post('/blogs/:id/comment', async(req, res) => {
 
 // Adding a like to a BlogPost
 // Current user ID is being returned and also Liked User ID is being return
-// TODO: Make comparision
 app.post('/blogs/:id/like', async(req, res) => {
-  console.log('like', req.body)
   
   try{
     const current_blog = await Blog.findOne(
       {_id: req.params.id}
 
       )
-    console.log(current_blog)
-    // TODO: Write a if block comparing current_user ID with Like array
+    const userId = req.current_user._id
+    const likeArray = current_blog.like
+    const existsInLikeArray = [];
+    for (let i = 0; i < likeArray.length; i++){
+      if(userId.toString() === likeArray[i].toString()){
+        console.log(`Success, UserId:${userId.toString()} is the same as LikeArray[${i}]:${likeArray[i].toString()}`)
+    existsInLikeArray.push(userId)
+  }
+}
+  if(existsInLikeArray.length === 0){
+    console.log('MongoDB - trying to add userId to likes Array')
+    result = await Blog.updateOne(
+      {_id: req.params.id},
+      {
+        $push: {
+          like: userId
+        }
+      }
+    )
+  } else {
+    console.log('MongoDB - trying to remove userId from likes Array')
+    result = await Blog.updateOne(
+      {_id: req.params.id},
+      {
+        $pull: {
+          like: userId
+        }
+      }
+    )
+  }
+  const blog_after_update = await Blog.findOne(
+    {_id: req.params.id}
+
+    )
+  console.log('Blog like array after update:', blog_after_update.like)
+
+
   }
   catch (err){
     console.error('error finding BlogPost Like', err)
