@@ -255,7 +255,10 @@ app.post('/blogs/:id/like', async(req, res) => {
 
     )
   console.log('Blog like array after update:', blog_after_update.like.length)
-
+  // return the updated number of likes to the frontend
+  res.json(blog_after_update.like.length)
+  
+  // TODO: repeat the process for the comments!!!
 
   }
   catch (err){
