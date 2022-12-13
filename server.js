@@ -254,7 +254,7 @@ app.post('/blogs/:id/like', async(req, res) => {
     {_id: req.params.id}
 
     )
-  console.log('Blog like array after update:', blog_after_update.like)
+  console.log('Blog like array after update:', blog_after_update.like.length)
 
 
   }
