@@ -1,23 +1,61 @@
 const express = require('express')
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
-const jwtAuthenticate = require('express-jwt')
 const Blog = require('./models/Blog')
 const User = require('./models/User')
 const app = express()
 const PORT = process.env.PORT || 3000
 
-const cors = require('cors')
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-require('dotenv').config()
-console.log(process.env.SERVER_SECRET_KEY)
-
 app.listen(PORT, () => {
   console.log(`Server listening at http://localhost:${PORT}`)
 })
 
+
+// Require cors
+const cors = require('cors')
+app.use(cors());
+
+// To get access to POSTed 'formdata' body content
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// require dotenv library
+require('dotenv').config()
+
+// call the dotenv variables
+const SERVER_SECRET_KEY = process.env.SERVER_SECRET_KEY;
+console.log(process.env.SERVER_SECRET_KEY)
+
+// ************ Authentication *********************** //
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+const jwtAuthenticate = require('express-jwt')
+
+
+// Refresh token setup
+const refreshTokenList = {};
+const generateRefreshToken = (userId) => {
+    const refreshToken = jwt.sign({userId}, process.env.SERVER_SECRET_KEY, {expiresIn: '7d'});
+    refreshTokenList[refreshToken] = userId;
+    return refreshToken;
+}
+
+// Check Authentication
+const checkAuth = () => {
+  return jwtAuthenticate.expressjwt({
+    secret: process.env.SERVER_SECRET_KEY,
+    algorithms: ['HS256'],
+    requestProperty: 'auth',
+    getToken: function (req) {
+      if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
+        return req.headers.authorization.split(' ')[1];
+      }
+      return null;
+    },
+  });
+};
+
+
+
+// require mongoose
 const mongoose = require('mongoose')
 
 mongoose.connect('mongodb://127.0.0.1/pb')
@@ -27,6 +65,10 @@ db.on('error', err => {
   console.log('Error connecting to server', err)
   process.exit(1)
 })
+
+
+
+// ************ Below are the Links **************
 
 app.get('/', (req, res) => {
   console.log('Root route was requested')
@@ -77,34 +119,26 @@ app.post('/blogs', async (req, res) => {
 // To fake a post in iterm and test if a post works, use the Curl command below, use this to test if success/fail conditions are working
 // curl -XPOST -d '{ "email":"one@one.com", "password":"chicken" }' http://localhost:3000/login -H 'content-type: application/json'
 app.post('/login', async (req, res) => {
-  console.log('login:', req.body)
-  const { email, password } = req.body
+  console.log('login:', req.body);
+  const { email, password } = req.body;
   try {
-    const user = await User.findOne({ email })
-    
+    const user = await User.findOne({ email });
     if (user && bcrypt.compareSync(password, user.passwordDigest)) {
-      // res.json({success: true})
-      const token = jwt.sign({
-        _id: user._id
-      },
-      process.env.SERVER_SECRET_KEY,
-      { expiresIn: '72h' }
-      )
+      const token = jwt.sign({ _id: user._id }, process.env.SERVER_SECRET_KEY, { expiresIn: '72h' });
+      const refreshToken = generateRefreshToken(user._id);
       const filterUser = {
         name: user.name,
         email: user.email,
-      }
-      
-      res.json({ token, filterUser })
-      
+      };
+      res.json({ token, refreshToken, filterUser });
     } else {
-      res.status(401).json({ success: false })
+      res.status(401).json({ success: false });
     }
   } catch (err) {
-    console.log('error verfying credentials:', err)
-    res.sendStatus(500)
+    console.log('error verifying credentials:', err);
+    res.sendStatus(500);
   }
-})
+});
 
 // signup route
 app.post('/signup', async (req, res) => {
@@ -127,8 +161,10 @@ app.post('/signup', async (req, res) => {
         expiresIn: '72h'
       }
       )
+      const refreshToken = generateRefreshToken(savedUser._id);
       console.log('token', token);
-      res.json({ token, savedUser })
+      res.json({token, refreshToken});
+
     } catch (error) {
       console.log('Error verifying login', error);
       res.sendStatus(500);
@@ -138,14 +174,7 @@ app.post('/signup', async (req, res) => {
   
   // **** routes below this line only work for authenticated users ****
   
-  const checkAuth = () => {
-    return jwtAuthenticate.expressjwt({
-      secret: process.env.SERVER_SECRET_KEY,
-      algorithms: ['HS256'],
-      requestProperty: 'auth'
-    })
-  }
-
+  
   app.use(checkAuth());
 
   app.use(async (req, res, next) => {
@@ -201,74 +230,43 @@ app.post('/blogs/:id/comment', async(req, res) => {
 
 // Adding a like to a BlogPost
 // Current user ID is being returned and also Liked User ID is being return
-app.post('/blogs/:id/like', async(req, res) => {
-  
-  // FindOne used to identify the blogPost being liked
-  try{
-    const current_blog = await Blog.findOne(
-      {_id: req.params.id}
-
-      )
+app.post('/blogs/:id/like', async (req, res) => {
+  try {
+    const current_blog = await Blog.findOne({ _id: req.params.id });
     
-      // Saving current user id and Like Array into variables
-    const userId = req.current_user._id
-    const likeArray = current_blog.like
-
-    // New empty array created where we sort a match between user Id and within the arry
-    const existsInLikeArray = [];
-
-    // for loop to check if user id within the like array
-    for (let i = 0; i < likeArray.length; i++){
-      if(userId.toString() === likeArray[i].toString()){
-        console.log(`Success, UserId:${userId.toString()} is the same as LikeArray[${i}]:${likeArray[i].toString()}`)
-    existsInLikeArray.push(userId)
-  }
-}
-
-// if statment checks length of of array, if 0 then push user id onto the like array creating a like function
-
-  if(existsInLikeArray.length === 0){
-    console.log('MongoDB - trying to add userId to likes Array')
-    result = await Blog.updateOne(
-      {_id: req.params.id},
-      {
-        $push: {
-          like: userId
-        }
-      }
-    )
+    if (!current_blog) {
+      return res.sendStatus(404);
+    }
   
-    // else we pull / remove the user id from the like array creating unlike function
-  } else {
-    console.log('MongoDB - trying to remove userId from likes Array')
-    result = await Blog.updateOne(
-      {_id: req.params.id},
-      {
-        $pull: {
-          like: userId
-        }
-      }
-    )
-  }
-  const blog_after_update = await Blog.findOne(
-    {_id: req.params.id}
-
-    )
-  console.log('Blog like array after update:', blog_after_update.like.length)
-  // return the updated number of likes to the frontend
-  res.json(blog_after_update.like.length)
+    const userId = req.current_user._id;
+    const likeArray = current_blog.like;
   
-  // TODO: repeat the process for the comments!!!
-
+    const existsInLikeArray = likeArray.filter((id) => id.toString() === userId.toString());
+  
+    if (existsInLikeArray.length === 0) {
+      await Blog.updateOne(
+        { _id: req.params.id },
+        {
+          $push: {
+            like: userId,
+          },
+        }
+      );
+    } else {
+      await Blog.updateOne(
+        { _id: req.params.id },
+        {
+          $pull: {
+            like: userId,
+          },
+        }
+      );
+    }
+  
+    const updatedBlog = await Blog.findOne({ _id: req.params.id });
+    res.json(updatedBlog.like.length);
+  } catch (err) {
+    console.error('Error finding/updating blog post', err);
+    res.sendStatus(500);
   }
-  catch (err){
-    console.error('error finding BlogPost Like', err)
-    res.sendStatus(422)
-  }
-  // When you hit the like end point
-  // Code should check/search if current blog post already contains that user in the like array
-
-  // If user_id is present, remove from the array
-  // If user_id is not present, add user to array
-
-})
+});
