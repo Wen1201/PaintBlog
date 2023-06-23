@@ -264,7 +264,7 @@ app.post('/blogs/:id/like', async (req, res) => {
     }
   
     const updatedBlog = await Blog.findOne({ _id: req.params.id });
-    res.json(updatedBlog.like.length);
+    res.json(updatedBlog.like);
   } catch (err) {
     console.error('Error finding/updating blog post', err);
     res.sendStatus(500);
