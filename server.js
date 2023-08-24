@@ -200,7 +200,35 @@ app.get('/current_user', (req, res) => {
   res.json(req.current_user)
 })
 
+
+// Updating Blog Posts 
+
+app.post('/blogs/:id/edit', async(req,res) => {
+
+  console.log('Blog Edits: ', req.body);
+
+  try{
+    const blogEdit = await Blog.updateOne(
+      {_id: req.params.id},
+      {
+        $push: {
+          title: req.body.title,
+          content: req.body.content,
+          img: req.body.img
+        }
+      }
+    )
+    console.log('blog updated :', blogEdit);
+    res.json('ok');
+
+  } catch(err){
+    console.error('error updating comments', err)
+    res.sendStatus(422)
+  }
+});
+
 // Adding comments to an existing blogPost
+// This code Maybe needs to change
 app.post('/blogs/:id/comment', async(req, res) => {
   console.log('comment', req.body);
 
@@ -265,6 +293,7 @@ app.post('/blogs/:id/like', async (req, res) => {
   
     const updatedBlog = await Blog.findOne({ _id: req.params.id });
     res.json(updatedBlog.like);
+    // res.json(updatedBlog.like.length);
   } catch (err) {
     console.error('Error finding/updating blog post', err);
     res.sendStatus(500);
