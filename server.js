@@ -17,6 +17,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
 // require dotenv library
 require('dotenv').config()
 
@@ -140,6 +141,32 @@ app.post('/login', async (req, res) => {
   }
 });
 
+// Refresh token route
+app.post('/refresh-token', (req, res) => {
+  // Retrieve the refresh token from the request body
+  const { refreshToken } = req.body;
+
+  // Verify the refresh token
+  jwt.verify(refreshToken, process.env.SERVER_SECRET_KEY, (err, decoded) => {
+    if (err) {
+      // If refresh token is invalid or expired, respond with 401 Unauthorized
+      return res.status(401).json({ error: 'Invalid or expired refresh token' });
+    }
+
+    // Check if the refresh token exists in the list of valid refresh tokens
+    if (refreshTokenList[refreshToken] !== decoded.userId) {
+      return res.status(401).json({ error: 'Invalid refresh token' });
+    }
+
+    // Generate a new access token
+    const newAccessToken = jwt.sign({ _id: decoded.userId }, process.env.SERVER_SECRET_KEY, { expiresIn: '72h' });
+
+    // Return the new access token
+    res.json({ accessToken: newAccessToken });
+  });
+});
+
+
 // signup route
 app.post('/signup', async (req, res) => {
   
@@ -203,6 +230,28 @@ app.get('/current_user', (req, res) => {
 
 // Updating Blog Posts 
 
+// app.post('/blogs/:id/edit', async (req, res) => {
+//   const { title, content, img } = req.body.updates;
+
+//   try {
+//     const updatedBlog = await Blog.updateOne(
+//       { _id: req.params.id },
+//       {
+//         $set: { title: req.body.ti, content, img } // Use $set to update fields, not $push
+//       }
+//     );
+
+//     if (updatedBlog.nModified > 0) {
+//       res.json('ok');
+//     } else {
+//       res.sendStatus(404); // Blog post not found
+//     }
+//   } catch (err) {
+//     console.error('Error updating blog post:', err);
+//     res.sendStatus(500);
+//   }
+// });
+
 app.post('/blogs/:id/edit', async(req,res) => {
 
   console.log('Blog Edits: ', req.body);
@@ -211,7 +260,7 @@ app.post('/blogs/:id/edit', async(req,res) => {
     const blogEdit = await Blog.updateOne(
       {_id: req.params.id},
       {
-        $push: {
+        $set: {
           title: req.body.title,
           content: req.body.content,
           img: req.body.img
@@ -297,5 +346,22 @@ app.post('/blogs/:id/like', async (req, res) => {
   } catch (err) {
     console.error('Error finding/updating blog post', err);
     res.sendStatus(500);
+  }
+});
+
+// Delete a blog post by ID
+app.delete('/blogs/:id/delete', async (req, res) => {
+  try {
+      const id = req.params.id;
+      const deletedBlog = await Blog.findOneAndDelete({ _id: id });
+
+      if (deletedBlog) {
+          res.status(204).send();
+      } else {
+          res.status(404).json({ error: 'Blog post not found' });
+      }
+  } catch (error) {
+      console.error('Error deleting blog post:', error);
+      res.status(500).json({ error: 'Internal server error' });
   }
 });
