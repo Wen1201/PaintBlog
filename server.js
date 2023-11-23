@@ -1,21 +1,6 @@
 const express = require('express')
-const Blog = require('./models/Blog')
-const User = require('./models/User')
 const app = express()
-const PORT = process.env.PORT || 3000
-
-app.listen(PORT, () => {
-  console.log(`Server listening at http://localhost:${PORT}`)
-})
-
-
-// Require cors
-const cors = require('cors')
-app.use(cors());
-
-// To get access to POSTed 'formdata' body content
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const PORT = process.env.PORT || 3000;
 
 
 // require dotenv library
@@ -23,7 +8,41 @@ require('dotenv').config()
 
 // call the dotenv variables
 const SERVER_SECRET_KEY = process.env.SERVER_SECRET_KEY;
-console.log(process.env.SERVER_SECRET_KEY)
+// console.log(process.env.SERVER_SECRET_KEY)
+
+
+// require cos
+const cors = require('cors');
+// Use this CORS package as part of the Express
+// set the CORS allow header for us on every request, for AJAX requests
+app.use( cors() ); 
+
+// To get access to POSTed 'formdata' body content
+
+app.use( express.json());
+app.use(express.urlencoded( {extended: true }))
+
+app.listen(PORT, () => {
+  console.log(`Server listening at http://localhost:${PORT}`)
+})
+
+
+
+
+
+// ******  Mongoose DB initialisation ****************** //
+const mongoose = require('mongoose');
+const Blog = require('./models/Blog');
+const User = require('./models/User');
+
+mongoose.connect('mongodb://127.0.0.1/pb')
+
+const db = mongoose.connection
+db.on('error', err => {
+  console.log('Error connecting to server', err)
+  process.exit(1)
+})
+
 
 // ************ Authentication *********************** //
 const bcrypt = require('bcrypt')
@@ -34,39 +53,30 @@ const jwtAuthenticate = require('express-jwt')
 // Refresh token setup
 const refreshTokenList = {};
 const generateRefreshToken = (userId) => {
-    const refreshToken = jwt.sign({userId}, process.env.SERVER_SECRET_KEY, {expiresIn: '7d'});
+    const refreshToken = jwt.sign({userId}, SERVER_SECRET_KEY, {expiresIn: '7d'});
     refreshTokenList[refreshToken] = userId;
     return refreshToken;
 }
 
-// Check Authentication
-const checkAuth = () => {
-  return jwtAuthenticate.expressjwt({
-    secret: process.env.SERVER_SECRET_KEY,
-    algorithms: ['HS256'],
-    requestProperty: 'auth',
-    getToken: function (req) {
-      if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
-        return req.headers.authorization.split(' ')[1];
-      }
-      return null;
-    },
-  });
+// check refresh token is still valid
+const checkRefreshToken = (refreshToken) => {
+  if(refreshTokenList[refreshToken]){
+    const userId = refreshTokenList[refreshToken];
+    const newToken = jwt.sign({userId}, SERVER_SECRET_KEY, {expiresIn: '72h'});
+    return newToken
+  }
+  return null;
 };
 
 
-
-// require mongoose
-const mongoose = require('mongoose')
-
-mongoose.connect('mongodb://127.0.0.1/pb')
-
-const db = mongoose.connection
-db.on('error', err => {
-  console.log('Error connecting to server', err)
-  process.exit(1)
-})
-
+// TODO: Might be able to remove the process.env
+const checkAuth = () => {
+  return jwtAuthenticate.expressjwt({ 
+      secret: process.env.SERVER_SECRET_KEY, // check token hasn't been tampered with
+      algorithms: ['HS256'],
+      requestProperty: 'auth' // gives us 'req.auth'
+  });
+}; // checkAuth
 
 
 // ************ Below are the Links **************
