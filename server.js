@@ -35,7 +35,7 @@ const mongoose = require('mongoose');
 const Blog = require('./models/Blog');
 const User = require('./models/User');
 
-mongoose.connect('mongodb://127.0.0.1/pb')
+mongoose.connect('mongodb+srv://deepabst:MIwhogbFmlx5cQCC@paintblogdb.pr7jxsa.mongodb.net/?retryWrites=true&w=majority')
 
 const db = mongoose.connection
 db.on('error', err => {
