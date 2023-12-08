@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 const User = require('./User');
 const Blog = require('./Blog');
-mongoose.connect('mongodb://127.0.0.1:27017/pb');
+mongoose.connect('mongodb+srv://deepabst:MIwhogbFmlx5cQCC@paintblogdb.pr7jxsa.mongodb.net/?retryWrites=true&w=majority');
 const bcrypt = require('bcrypt');
 const path = require('path');
 const express = require('express');
