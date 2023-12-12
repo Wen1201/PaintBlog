@@ -39,3 +39,4 @@ node_modules/
 .byebug_history
 .eslintcache
 .idea/
+.vercel
