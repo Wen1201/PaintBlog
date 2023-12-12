@@ -35,7 +35,11 @@ const mongoose = require('mongoose');
 const Blog = require('./models/Blog');
 const User = require('./models/User');
 
-mongoose.connect('mongodb://127.0.0.1/pb')
+
+mongoose.connect(process.env.MONGODB_CLOUD_URL);
+
+// Testing connecting to mongoose
+// mongoose.connect('mongodb://127.0.0.1/pb')
 
 const db = mongoose.connection
 db.on('error', err => {

@@ -2,7 +2,11 @@
 const mongoose = require('mongoose');
 const User = require('./User');
 const Blog = require('./Blog');
-mongoose.connect('mongodb://127.0.0.1:27017/pb');
+
+
+
+// testing above to connect to cloud
+// mongoose.connect('mongodb://127.0.0.1:27017/pb');
 const bcrypt = require('bcrypt');
 const path = require('path');
 const express = require('express');
@@ -12,6 +16,7 @@ const app = express();
 app.use("/public", express.static(path.join(__dirname, 'public')));
 
 
+mongoose.connect(process.env.MONGODB_CLOUD_URL);
 
 const db = mongoose.connection;
 
