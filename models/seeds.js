@@ -1,14 +1,12 @@
 
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 const User = require('./User');
 const Blog = require('./Blog');
 
-mongoose.connect(process.env.MONGODB_CLOUD_URL);
 
-// Testing connecting to mongoose
-// mongoose.connect('mongodb://127.0.0.1/pb')
 
-const bcrypt = require('bcrypt');
+
 const path = require('path');
 const express = require('express');
 const app = express();
@@ -16,8 +14,11 @@ const app = express();
 // Serve static files from the 'public' directory
 app.use("/public", express.static(path.join(__dirname, 'public')));
 
-
+require('dotenv').config();
 mongoose.connect(process.env.MONGODB_CLOUD_URL);
+// Testing connecting to mongoose
+// mongoose.connect('mongodb://127.0.0.1/pb')
+
 
 const db = mongoose.connection;
 
