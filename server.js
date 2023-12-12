@@ -1,3 +1,4 @@
+
 const express = require('express')
 const app = express()
 const PORT = process.env.PORT || 3000;
@@ -8,6 +9,7 @@ require('dotenv').config()
 
 // call the dotenv variables
 const SERVER_SECRET_KEY = process.env.SERVER_SECRET_KEY;
+const MONGODB_CLOUD_URL = process.env.MONGODB_CLOUD_URL;
 // console.log(process.env.SERVER_SECRET_KEY)
 
 
@@ -32,14 +34,11 @@ app.listen(PORT, () => {
 
 // ******  Mongoose DB initialisation ****************** //
 const mongoose = require('mongoose');
+mongoose.connect(MONGODB_CLOUD_URL);
 const Blog = require('./models/Blog');
 const User = require('./models/User');
 
 
-mongoose.connect(process.env.MONGODB_CLOUD_URL);
-
-// Testing connecting to mongoose
-// mongoose.connect('mongodb://127.0.0.1/pb')
 
 const db = mongoose.connection
 db.on('error', err => {
@@ -51,10 +50,10 @@ db.on('error', err => {
 // ************ Authentication *********************** //
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const jwtAuthenticate = require('express-jwt')
 
 
-// Refresh token setup
+
+
 const refreshTokenList = {};
 const generateRefreshToken = (userId) => {
     const refreshToken = jwt.sign({userId}, SERVER_SECRET_KEY, {expiresIn: '7d'});
@@ -64,10 +63,11 @@ const generateRefreshToken = (userId) => {
 
 // check refresh token is still valid
 const checkRefreshToken = (refreshToken) => {
-  if(refreshTokenList[refreshToken]){
+  if (refreshTokenList[refreshToken]) {
     const userId = refreshTokenList[refreshToken];
-    const newToken = jwt.sign({userId}, SERVER_SECRET_KEY, {expiresIn: '72h'});
-    return newToken
+    // Generate a new refresh token
+    const newRefreshToken = generateRefreshToken(userId);
+    return { accessToken: generateAccessToken(userId), refreshToken: newRefreshToken };
   }
   return null;
 };
@@ -75,12 +75,47 @@ const checkRefreshToken = (refreshToken) => {
 
 // TODO: Might be able to remove the process.env
 const checkAuth = () => {
-  return jwtAuthenticate.expressjwt({ 
-      secret: process.env.SERVER_SECRET_KEY, // check token hasn't been tampered with
-      algorithms: ['HS256'],
-      requestProperty: 'auth' // gives us 'req.auth'
+  return (req, res, next) => {
+    const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
+
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    jwt.verify(token, SERVER_SECRET_KEY, (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      req.auth = decoded;
+      next();
+    });
+  };
+};
+// Refresh token route
+app.post('/refresh-token', (req, res) => {
+  // Retrieve the refresh token from the request body
+  const { refreshToken } = req.body;
+
+  // Verify the refresh token
+  jwt.verify(refreshToken, process.env.SERVER_SECRET_KEY, (err, decoded) => {
+    if (err) {
+      // If refresh token is invalid or expired, respond with 401 Unauthorized
+      return res.status(401).json({ error: 'Invalid or expired refresh token' });
+    }
+
+    // Check if the refresh token exists in the list of valid refresh tokens
+    if (refreshTokenList[refreshToken] !== decoded.userId) {
+      return res.status(401).json({ error: 'Invalid refresh token' });
+    }
+
+    // Generate a new access token
+    const newAccessToken = jwt.sign({ _id: decoded.userId }, process.env.SERVER_SECRET_KEY, { expiresIn: '72h' });
+
+    // Return the new access token
+    res.json({ accessToken: newAccessToken });
   });
-}; // checkAuth
+});
 
 
 // ************ Below are the Links **************
@@ -155,30 +190,7 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// Refresh token route
-app.post('/refresh-token', (req, res) => {
-  // Retrieve the refresh token from the request body
-  const { refreshToken } = req.body;
 
-  // Verify the refresh token
-  jwt.verify(refreshToken, process.env.SERVER_SECRET_KEY, (err, decoded) => {
-    if (err) {
-      // If refresh token is invalid or expired, respond with 401 Unauthorized
-      return res.status(401).json({ error: 'Invalid or expired refresh token' });
-    }
-
-    // Check if the refresh token exists in the list of valid refresh tokens
-    if (refreshTokenList[refreshToken] !== decoded.userId) {
-      return res.status(401).json({ error: 'Invalid refresh token' });
-    }
-
-    // Generate a new access token
-    const newAccessToken = jwt.sign({ _id: decoded.userId }, process.env.SERVER_SECRET_KEY, { expiresIn: '72h' });
-
-    // Return the new access token
-    res.json({ accessToken: newAccessToken });
-  });
-});
 
 
 // signup route
@@ -241,30 +253,6 @@ app.get('/current_user', (req, res) => {
   res.json(req.current_user)
 })
 
-
-// Updating Blog Posts 
-
-// app.post('/blogs/:id/edit', async (req, res) => {
-//   const { title, content, img } = req.body.updates;
-
-//   try {
-//     const updatedBlog = await Blog.updateOne(
-//       { _id: req.params.id },
-//       {
-//         $set: { title: req.body.ti, content, img } // Use $set to update fields, not $push
-//       }
-//     );
-
-//     if (updatedBlog.nModified > 0) {
-//       res.json('ok');
-//     } else {
-//       res.sendStatus(404); // Blog post not found
-//     }
-//   } catch (err) {
-//     console.error('Error updating blog post:', err);
-//     res.sendStatus(500);
-//   }
-// });
 
 app.post('/blogs/:id/edit', async(req,res) => {
 
